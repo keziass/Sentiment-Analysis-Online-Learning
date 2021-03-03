@@ -1,0 +1,299 @@
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<title>ENTRY - Sentiment Analysis PJJ</title>
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.3/dist/Chart.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse" >
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<img src="/static/petralogo.png" style="max-height: 75px; max-width: 75px; display: block;margin: 0 auto; padding: 5px"/> 
+				</div>
+				<ul class="nav navbar-nav" style="align-items: center; padding: 10 0">
+					<li><a href="/">Home</a></li>
+					{% if role < 4 %}
+						<li><a href="report">Report</a></li>
+					{% endif %}
+					{% if role < 3 %}
+						<li  class="active"><a href="#">Entry</a></li>
+					{% endif %}
+					{% if role < 2 %}
+						<li><a href="admin">Admin</a></li>
+					{% endif %}
+				</ul>
+				<ul class="nav navbar-nav navbar-right" style="align-items: center; padding: 10 0">
+					<li id="btnLogout"><a href="#"><span class="glyphicon glyphicon-log-in"></span> Hello, <b> {{username}}</b> </a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<div class="container-fluid bg">
+
+			<h1><b>ENTRY</b></h1>
+			<form action = "http://localhost:5000/addEntry" method = "POST" 
+                enctype = "multipart/form-data">
+				<div class="form-row">
+					<div class="form-group col-md-4">
+					    <label for="tahunAjaran">Nama Kuesioner</label>
+					    <input type="text" class="form-control" id="namaAjaran" name="namaAjaran" aria-describedby="namaHelp">
+					    <small id="namaHelp" class="form-text text-muted" style="color:white">Contoh: PJJ-Gasal-1</small>
+					</div>
+					<div class="form-group col-md-4">
+					    <label for="tahunAjaran">Tahun Ajaran</label>
+					    <input type="text" class="form-control" id="tahunAjaran" name="tahunAjaran" aria-describedby="tahunHelp">
+					    <small id="tahunHelp" class="form-text text-muted" style="color:white">Contoh: 2019/2020</small>
+					</div>
+					<div class="form-group col-md-4">
+					    <label for="Semester">Semester</label>
+					    <select class="form-control" id="semester" name="semester">
+					      <option>Gasal</option>
+					      <option>Genap</option>
+					      <option>Pendek</option>
+					    </select>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-md-5">
+						<label for="inputKuesioner">Kuesioner</label>
+						<input accept=".xlsx" name="file" type="file" class="form-control" id="inputKuesioner" placeholder="Place your file here">
+					</div>
+					<div class="form-group col-md-3">
+						<label for="inputAwal">Tanggal Awal Pengambilan</label>
+						<input type="date" class="form-control" id="inputAwal" name="inputAwal">
+					</div>
+					<div class="form-group col-md-3">
+						<label for="inputAkhir">Tanggal Akhir Pengambilan</label>
+						<input type="date" class="form-control" id="inputAkhir" name="inputAkhir">
+					</div>
+				</div>
+				<a href="/download/entry" target="blank"><button type="button" class="btn btn-warning button-entry" id="btnDownload" style="font-size: 20px; height: 50px;  margin:0 auto; display:block;">File Example</button></a>
+				<button id="btnEntry" type="submit" class="btn btn-primary button-entry" style="font-size: 20px; height: 50px;  margin:0 auto; display:block;">Submit <span class="glyphicon glyphicon-play"></span></button>
+
+			</form>
+
+			<div id="classified">
+			{% if sentences%}
+				<div class="container">
+					<div class="row" style="margin-bottom:10px">
+						<div class="col-xs-12">
+							<canvas id="myChart" width="600" height="200", style="background-color: rgba(0, 0, 0, 0.6);"></canvas>
+						</div>
+					</div>
+					<table class="table table-inverse" style="margin-top:20px">
+						<thead>
+							<tr>
+								<th>Text</th>
+								<th>Sentiment</th>
+								<th>Topic</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for result in sentences %}
+							<tr>
+								<td>{{ result.text }}</td>
+								<td>{{ result.sentiment }}</td>
+								<td>{{ result.topic }}</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% endif %}
+			</div>
+		</div>
+	</body>
+	<script>
+		$(document).ready(function(){
+			{% if cek == 1 %}
+				alert("Data Sudah ADA")
+			{% endif %}
+		});
+        $(function() {
+			$('#btnLogout').click(function() {
+                $.ajax({
+                    url: '/logout',
+					data: '',
+                    type: 'POST',
+                    success: function(response) {
+						if(response == "success"){
+							window.location.href= "/";
+						}
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+
+		// Global parameters:
+		Chart.defaults.global.responsive = true;
+		Chart.defaults.global.defaultFontColor = 'white';
+		Chart.defaults.global.defaultFontFamily = 'Helvetica';
+		
+		// define the chart data
+		var chartData = {
+		labels : [{% for item in labels %}
+					"{{item}}",
+					{% endfor %}],
+		datasets : [
+			{
+				label: 'Positif',
+				backgroundColor: "#3e95cd",
+				borderColor: "#3e95cd",
+				data : [{% for item in valuespos %}
+							{{item}},
+						{% endfor %}],
+				spanGaps: false
+			},
+			{
+				label: 'Negatif',
+				backgroundColor: "#c45850",
+				borderColor: "#c45850",
+				data : [{% for item in valuesneg %}
+							{{item}},
+						{% endfor %}],
+				spanGaps: false
+			}
+			],
+		}
+
+		var ctx = document.getElementById("myChart").getContext("2d");
+		var myChart = new Chart(ctx, {
+			type: 'bar',
+			data: chartData,
+			options: {
+				barValueSpacing: 20,
+				plugins: {
+					datalabels: {
+						color: 'white'
+					}
+				},
+				title: {
+					display: true,
+					fontSize: 20,
+					text: 'All Responses'
+				},
+				scales: {
+					yAxes: [{
+						gridLines: {
+							color: "#FFFFFF"
+						},
+					}],
+					xAxes: [{
+						gridLines: {
+							color: "#FFFFFF"
+						},
+					}]
+				}
+			}
+		});
+    </script>
+	<style type="text/css">
+		body, html {
+		  height: 100%;
+		  /* The image used */
+		  background-image: url("/static/UKP (2).jpg");
+		  background-blend-mode: overlay;
+		  position: relative;
+
+		  /* Full height */
+		  height: 100%;
+
+		  /* Center and scale the image nicely */
+		  background-position: center;
+		  background-repeat: no-repeat;
+		  background-attachment: fixed;
+		  background-size: cover;
+		}
+
+		.bg {
+		  /* The image used */
+		  background-image: url("/static/UKP (2).jpg");
+		  background-blend-mode: overlay;
+		  position: relative;
+
+		  /* Full height */
+		  height: 100%;
+
+		  /* Center and scale the image nicely */
+		  background-position: center;
+		  background-repeat: no-repeat;
+		  background-attachment: fixed;
+		  background-size: cover;
+		  margin-top: -25px;
+
+		}
+
+		.caption {
+		  position: absolute;
+		  left: 0;
+		  top: 45%;
+		  width: 100%;
+		  text-align: center;
+		  color: #000;
+		}
+
+		h1 {
+		  letter-spacing: 5px;
+		  text-align: center;
+		  text-transform: uppercase;
+		  font: 35px "Lato", sans-serif;
+		  margin: 10px auto; 
+		  color: #fff;
+		  text-shadow: 2px 2px 4px #000000; 
+		}
+
+		.button-entry{
+			border: none;
+			color: white;
+			height: 60px;
+			width: 250px;
+			padding: 10px;
+			display: flex;
+			align-items: center;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font: 25px "Helvetica Neue", sans-serif;
+			margin: 4px 2px;
+			border-radius: 30px;
+		}
+
+		label{
+			color: white;
+			font: 15px "Helvetica Neue", sans-serif;
+			text-align: right;
+		}
+
+		/*.caption span.border {
+		  background-color: #111;
+		  color: #fff;
+		  padding: 10px;
+		  font-size: 25px;
+		  letter-spacing: 10px;
+		}
+
+		.topBTN {
+		  position: absolute;
+		  font: "Helvetica Neue", sans-serif;
+		  left: 0;
+		  top: 5%;
+		  width: 100%;
+		  text-align: right;
+		}
+
+	</style>
+</html>

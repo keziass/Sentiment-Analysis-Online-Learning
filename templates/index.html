@@ -1,0 +1,245 @@
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<title>HOME - Sentiment Analysis PJJ</title>
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid" >
+				<div class="navbar-header">
+					<img src="/static/petralogo.png" style="max-height: 75px; max-width: 75px; display: block;margin: 0 auto; padding: 5px"/> 
+				</div>
+				<ul class="nav navbar-nav" style="align-items: center; padding: 10 0"> >
+					<li class="active"><a href="#">Home</a></li>
+					{% if role < 4 %}
+						<li><a href="report">Report</a></li>
+					{% endif %}
+					{% if role < 3 %}
+						<li><a href="entry">Entry</a></li>
+					{% endif %}
+					{% if role < 2 %}
+						<li><a href="admin">Admin</a></li>
+					{% endif %}
+				</ul>
+				<ul class="nav navbar-nav navbar-right pull-right" style="align-items: center; padding: 10 0">>
+					{% if username == ''%}
+						<li><a href="#myModal" data-toggle="modal"><span class="glyphicon glyphicon-log-in" ></span> Login </a></li>
+					{% else %}
+						<li id="btnLogout"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Hello, <b> {{username}}</b> </a></li>
+					{% endif %}
+				</ul>
+			</div>
+		</nav>
+
+		<div class="container-fluid bg">
+		  	<div class="caption">
+				<h1><b>Analisa Sentimen Mahasiswa <br />
+				Terhadap Pelaksanaan Pembelajaran Jarak Jauh<br/>
+			 	Universitas Kristen Petra<br/></b>
+			 	</h1>
+			 	<button type="button" class="btn btn-primary button-entry" onclick="window.location.href='entry';">New Entry <span class="glyphicon glyphicon-play"></span> </button>
+			</div>
+		</div>
+
+		<div id="myModal" class="modal fade">
+			<div class="modal-dialog modal-login">
+				<div class="modal-content">
+					<form>
+						<div class="modal-header">				
+							<h4 class="modal-title"><b>Login</b></h4>
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						</div>
+						<div class="modal-body">				
+							<div class="form-group">
+								<label>Username</label>
+								<input type="text" class="form-control" required="required" name="username">
+							</div>
+							<div class="form-group">
+								<div class="clearfix">
+									<label>Password</label>
+								</div>
+								<input type="password" class="form-control" required="required" name="password">
+							</div>
+						</div>
+						<div class="modal-footer justify-content-between">
+							<input type="submit" class="btn btn-primary" value="Login" id="btnLogin">
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+	</body>
+	<script>
+		$(function() {
+            $('#btnLogin').click(function() {
+                $.ajax({
+                    url: '/login',
+                    data: $('form').serialize(),
+                    type: 'POST',
+                    success: function(response) {
+						alert(response)
+						window.location.href("/")
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+		$(function() {
+            $('#btnLogout').click(function() {
+                $.ajax({
+                    url: '/logout',
+					data: '',
+                    type: 'POST',
+                    success: function(response) {
+						if(response == "success"){
+							location.reload();
+						}
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+	</script>
+	<style type="text/css">
+		body, html {
+		  height: 100%;
+		}
+
+		.bg {
+		  /* The image used */
+		  background-image: url("/static/UKP (2).jpg");
+		  background-blend-mode: overlay;
+		  position: relative;
+
+		  /* Full height */
+		  height: 100%;
+
+		  /* Center and scale the image nicely */
+		  background-position: center;
+		  background-repeat: no-repeat;
+		  background-attachment: fixed;
+		  background-size: cover;
+		  margin-top: -25px;
+
+		}
+
+		.caption {
+		  position: absolute;
+		  left: 0;
+		  top: 30%;
+		  width: 100%;
+		  text-align: center;
+		  color: #000;
+		}
+
+		h1 {
+		  letter-spacing: 5px;
+		  text-transform: uppercase;
+		  font: 35px "Lato", sans-serif;
+		  margin: 10px auto; 
+		  color: #fff;
+		  text-shadow: 2px 2px 4px #000000; 
+		}
+
+		.button-entry{
+			border: none;
+			color: white;
+			height: 60px;
+			width: 250px;
+			padding: 10px;
+			display: flex;
+			align-items: center;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font: 25px "Helvetica Neue", sans-serif;
+			margin: 4px 2px;
+			border-radius: 30px;
+		}
+
+		/*.caption span.border {
+		  background-color: #111;
+		  color: #fff;
+		  padding: 10px;
+		  font-size: 25px;
+		  letter-spacing: 10px;
+		}
+		.modal-login {
+			width: 320px;
+		}
+		.modal-login .modal-content {
+			border-radius: 1px;
+			border: none;
+		}
+		.modal-login .modal-header {
+			position: relative;
+			justify-content: center;
+			background: #f2f2f2;
+		}
+		.modal-login .modal-body {
+			padding: 30px;
+		}
+		.modal-login .modal-footer {
+			background: #f2f2f2;
+		}
+		.modal-login h4 {
+			text-align: center;
+			font-size: 26px;
+		}
+		.modal-login label {
+			font-weight: normal;
+			font-size: 13px;
+		}
+		.modal-login .form-control, .modal-login .btn {
+			min-height: 38px;
+			border-radius: 2px; 
+		}
+		.modal-login .hint-text {
+			text-align: center;
+		}
+		.modal-login .close {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+		}
+		.modal-login .checkbox-inline {
+			margin-top: 12px;
+		}
+		.modal-login input[type="checkbox"] {
+			position: relative;
+			top: 1px;
+		}
+		.modal-login .btn {
+			min-width: 100px;
+			background: #3498db;
+			border: none;
+			line-height: normal;
+		}
+		.modal-login .btn:hover, .modal-login .btn:focus {
+			background: #248bd0;
+		}
+		.modal-login .hint-text a {
+			color: #999;
+		}
+		.trigger-btn {
+			display: inline-block;
+			margin: 100px auto;
+		}
+	</style>
+</html>
